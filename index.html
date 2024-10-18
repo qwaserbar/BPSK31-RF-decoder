@@ -36,23 +36,24 @@
         reader.onload = function(e) {
             const arrayBuffer = e.target.result;
 
-            try {
-                const decodedText = decodeBPSK31(arrayBuffer); // Creator's note: Sometimes I may need to ensure this function exists in BPSK31decoder.js
-                document.getElementById('output').value = decodedText;
-                alert('BPSK31 decoded successfully');
-            } catch (error) {
-                console.error("Decoding error:", error);
-                document.getElementById('output').value = error.decodedText || 'Error decoding';
-                alert('Error decoding BPSK31: ' + error.message);
-            }
+            // Call the decodeBPSK31 function with a callback
+            decodeBPSK31(arrayBuffer, function(error, decodedText) {
+                if (error) {
+                    console.error("Decoding error:", error);
+                    document.getElementById('output').value = 'Error decoding';
+                    alert('Error decoding BPSK31: ' + error.message);
+                } else {
+                    document.getElementById('output').value = decodedText;
+                    alert('BPSK31 decoded successfully');
+                }
+            });
         };
 
         reader.readAsArrayBuffer(file);
     });
 </script>
 
-<a href="https://qwaserbar.github.io/BPSK31-RF-decoder/README.txt">Go here for more info</a>
+<a href="https://qwaserbar.github.io/BPSK31-RF-decoder/README.txt">Go here for more information about the site</a>
 
 </body>
 </html>
-
