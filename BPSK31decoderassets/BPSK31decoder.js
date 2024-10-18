@@ -1,33 +1,25 @@
-// BPSK31 decoding script
-
-function decodeBPSK31(arrayBuffer) {
+function decodeBPSK31(arrayBuffer, callback) {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const audioBuffer = audioContext.decodeAudioData(arrayBuffer);
-    
-    
-    const decodedText = bpsk31Decode(audioBuffer);
-    
-    // outputing the decoded BPSK31 text
-    return decodedText;
+
+    audioContext.decodeAudioData(arrayBuffer, function(audioBuffer) {
+        // Now audioBuffer is ready and we can process it
+        const decodedText = bpsk31Decode(audioBuffer);
+        callback(null, decodedText);
+    }, function(error) {
+        callback(error);
+    });
 }
 
 function bpsk31Decode(audioBuffer) {
-    // BPSK31 decoding logic, this took me forever
-    // placeholder string
-    
-    // Example logic
     const sampleRate = audioBuffer.sampleRate;
-    const channelData = audioBuffer.getChannelData(0); // Get the first channel
-    
+    const channelData = audioBuffer.getChannelData(0); // Getting the first channel
     let decodedMessage = '';
-    
-    // Simple placeholder loop to simulate decoding
-    for (let i = 0; i < channelData.length; i += sampleRate / 31) {
-        // Here, you would analyze the samples and decode them into text.
-        // This example simply appends "A" for every 31 samples processed.
-        decodedMessage += 'A'; // Replace with actual decoding logic
+
+    // Simplified logic for BPSK31 decoding
+    for (let i = 0; i < channelData.length; i += Math.floor(sampleRate / 31)) {
+        const sample = channelData[i];
+        decodedMessage += sample > 0 ? '1' : '0'; // Replace with actual decoding logic
     }
-    
-    return decodedMessage;
+
+    return decodedMessage; // Return the decoded BPSK31 message
 }
-// sorry for the many amount of comments
