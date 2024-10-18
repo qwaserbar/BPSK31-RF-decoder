@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPSK31 decoder online | created by qwaserbar on github</title>
+    <title>BPSK31 decoder online</title>
     <script src="https://qwaserbar.github.io/BPSK31-RF-decoder/BPSK31decoderassets/BPSK31decoder.js"></script>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -37,10 +37,11 @@
             const arrayBuffer = e.target.result;
 
             try {
-                const decodedText = decodeBPSK31(arrayBuffer);
+                const decodedText = decodeBPSK31(arrayBuffer); // Creator's note: Sometimes I may need to ensure this function exists in BPSK31decoder.js
                 document.getElementById('output').value = decodedText;
                 alert('BPSK31 decoded successfully');
             } catch (error) {
+                console.error("Decoding error:", error);
                 document.getElementById('output').value = error.decodedText || 'Error decoding';
                 alert('Error decoding BPSK31: ' + error.message);
             }
@@ -50,7 +51,8 @@
     });
 </script>
 
-<a href="https://qwaserbar.github.io/BPSK31-RF-decoder/README.txt>Go here for more information</a>
+<a href="https://qwaserbar.github.io/BPSK31-RF-decoder/README.txt">Go here for more info</a>
 
 </body>
 </html>
+
