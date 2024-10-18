@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPSK31 decoder online</title>
+    <script src="BPSK31.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        textarea { width: 100%; height: 200px; }
+    </style>
+</head>
+<body>
+
+<h1>BPSK31 RF decoder</h1>
+<input type="file" id="fileInput" accept=".wav" />
+<button id="decodeButton" style="display: none;">Decode BPSK31</button>
+
+<h2>Decoded BPSK31:</h2>
+<textarea id="output" readonly></textarea>
+
+<script>
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            document.getElementById('decodeButton').style.display = 'inline-block';
+        } else {
+            document.getElementById('decodeButton').style.display = 'none';
+        }
+    });
+
+    document.getElementById('decodeButton').addEventListener('click', function() {
+        const file = document.getElementById('fileInput').files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const arrayBuffer = e.target.result;
+
+            try {
+                const decodedText = decodeBPSK31(arrayBuffer);
+                document.getElementById('output').value = decodedText;
+                alert('BPSK31 decoded successfully');
+            } catch (error) {
+                document.getElementById('output').value = error.decodedText || 'Error decoding';
+                alert('Error decoding BPSK31: ' + error.message);
+            }
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
+</script>
+
+</body>
+</html>
