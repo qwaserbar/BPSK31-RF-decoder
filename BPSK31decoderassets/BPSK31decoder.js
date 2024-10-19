@@ -11,40 +11,40 @@ function decodeBPSK31(arrayBuffer, frequency, callback) {
 
 function bpsk31Decode(audioBuffer, frequency) {
     const sampleRate = audioBuffer.sampleRate;
-    const channelData = audioBuffer.getChannelData(0); // Getting the first channel
+    const channelData = audioBuffer.getChannelData(0);
     let decodedMessage = '';
 
     const baudRate = 31.25; // BPSK31 baud rate in baud
-    const samplesPerSymbol = Math.floor(sampleRate / (baudRate)); // Calculate samples per symbol based on baud rate
+    const samplesPerSymbol = Math.floor(sampleRate / baudRate); // Calculate samples per symbol
 
-    let previousSample = 0;
-    let bit = '';
+    // Phase accumulator to detect frequency
+    let phase = 0;
+    const phaseIncrement = (2 * Math.PI * frequency) / sampleRate;
 
-    // Loop through the audio data
-    for (let i = 0; i < channelData.length; i += samplesPerSymbol) {
+    for (let i = 0; i < channelData.length; i++) {
+        // Using phase to determine bit value
         const sample = channelData[i];
 
-        // Simple phase detection
-        if (sample > 0) {
-            if (previousSample <= 0) {
-                bit = '1'; // Phase change detected
-            } else {
-                bit = '0'; // No phase change
-            }
+        // Determine the expected value based on the current phase
+        const expectedValue = Math.sin(phase);
+
+        // Detect bit based on the expected value and the sample
+        if ((sample > 0 && expectedValue > 0) || (sample <= 0 && expectedValue <= 0)) {
+            // No phase change
+            decodedMessage += '0';
         } else {
-            if (previousSample >= 0) {
-                bit = '0'; // Phase change detected
-            } else {
-                bit = '1'; // No phase change
-            }
+            // Phase change detected
+            decodedMessage += '1';
         }
 
-        decodedMessage += bit;
-        previousSample = sample;
+        // Increment phase
+        phase += phaseIncrement;
+        if (phase >= 2 * Math.PI) {
+            phase -= 2 * Math.PI; // Wrap phase
+        }
     }
 
-    return decodedMessage; // Returning the decoded BPSK31 message
+    return decodedMessage; // Return the decoded BPSK31 message
 }
-
 
 // creator note: this took me almost forever to write
