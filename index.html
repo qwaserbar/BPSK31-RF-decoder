@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPSK31 decoder online</title>
+    <title>BPSK31 Decoder Online</title>
     <script src="https://qwaserbar.github.io/BPSK31-RF-decoder/BPSK31decoderassets/BPSK31decoder.js"></script>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -12,7 +12,9 @@
 </head>
 <body>
 
-<h1>BPSK31 RF decoder</h1>
+<h1>BPSK31 RF Decoder</h1>
+<label for="frequencyInput">Enter Center Frequency (kHz):</label>
+<input type="number" id="frequencyInput" placeholder="e.g., 1500" step="0.1" min="0" />
 <input type="file" id="fileInput" accept=".wav" />
 <button id="decodeButton" style="display: none;">Decode BPSK31</button>
 
@@ -22,22 +24,24 @@
 <script>
     document.getElementById('fileInput').addEventListener('change', function(event) {
         const file = event.target.files[0];
-        if (file) {
-            document.getElementById('decodeButton').style.display = 'inline-block';
-        } else {
-            document.getElementById('decodeButton').style.display = 'none';
-        }
+        document.getElementById('decodeButton').style.display = file ? 'inline-block' : 'none';
     });
 
     document.getElementById('decodeButton').addEventListener('click', function() {
+        const frequency = parseFloat(document.getElementById('frequencyInput').value);
+        if (isNaN(frequency) || frequency <= 0) {
+            alert('Please enter a valid center frequency in kHz.');
+            return;
+        }
+
         const file = document.getElementById('fileInput').files[0];
         const reader = new FileReader();
 
         reader.onload = function(e) {
             const arrayBuffer = e.target.result;
 
-            // Call the decodeBPSK31 function with a callback
-            decodeBPSK31(arrayBuffer, function(error, decodedText) {
+            // Call the decodeBPSK31 function with frequency and a callback
+            decodeBPSK31(arrayBuffer, frequency, function(error, decodedText) {
                 if (error) {
                     console.error("Decoding error:", error);
                     document.getElementById('output').value = 'Error decoding';
