@@ -2,7 +2,7 @@ function decodeBPSK31(arrayBuffer, frequency, callback) {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
     audioContext.decodeAudioData(arrayBuffer, function(audioBuffer) {
-        const decodedText = bpsk31Decode(audioBuffer, frequency * 1000); // Convert kHz to Hz
+        const decodedText = bpsk31Decode(audioBuffer, frequency * 1000); // Converting kHz to Hz
         callback(null, decodedText);
     }, function(error) {
         callback(error);
@@ -15,36 +15,43 @@ function bpsk31Decode(audioBuffer, frequency) {
     let decodedMessage = '';
 
     const baudRate = 31.25; // BPSK31 baud rate in baud
-    const samplesPerSymbol = Math.floor(sampleRate / baudRate); // Calculate samples per symbol
+    const samplesPerSymbol = Math.floor(sampleRate / baudRate); // Calculating samples per symbol
 
-    // Phase accumulator to detect frequency
     let phase = 0;
     const phaseIncrement = (2 * Math.PI * frequency) / sampleRate;
 
-    for (let i = 0; i < channelData.length; i++) {
-        // Using phase to determine bit value
+    const bits = [];
+
+    // Looping through the audio samples
+    for (let i = 0; i < channelData.length; i += samplesPerSymbol) {
         const sample = channelData[i];
 
-        // Determine the expected value based on the current phase
+        // Determining if we are receiving a '1' or '0'
         const expectedValue = Math.sin(phase);
-
-        // Detect bit based on the expected value and the sample
-        if ((sample > 0 && expectedValue > 0) || (sample <= 0 && expectedValue <= 0)) {
-            // No phase change
-            decodedMessage += '0';
+        if (sample > 0) {
+            bits.push(expectedValue > 0 ? '1' : '0');
         } else {
-            // Phase change detected
-            decodedMessage += '1';
+            bits.push(expectedValue <= 0 ? '1' : '0');
         }
 
-        // Increment phase
+        // Increment phase for the next sample
         phase += phaseIncrement;
         if (phase >= 2 * Math.PI) {
             phase -= 2 * Math.PI; // Wrap phase
         }
     }
 
-    return decodedMessage; // Return the decoded BPSK31 message
+    // Converting bits to characters
+    for (let i = 0; i < bits.length; i += 8) {
+        const byteString = bits.slice(i, i + 8).join('');
+        const charCode = parseInt(byteString, 2);
+        if (charCode) {
+            decodedMessage += String.fromCharCode(charCode);
+        }
+    }
+
+    return decodedMessage.trim(); // Returning the decoded BPSK31 message
 }
+
 
 // creator note: this took me almost forever to write
