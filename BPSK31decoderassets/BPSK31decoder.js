@@ -17,7 +17,7 @@ function bpsk31Decode(audioBuffer, frequency) {
 
     // Calculate the appropriate step based on the frequency provided (in kHz)
     const baudRate = 31.25; // BPSK31 baud rate in baud
-    const samplesPerSymbol = Math.floor(sampleRate / (baudRate * frequency / 1000)); // Adjusting for the provided frequency
+    const samplesPerSymbol = Math.floor(sampleRate / (baudRate * frequency)); // Adjusting for the provided frequency (in Hz)
 
     // Simplified logic for BPSK31 decoding
     for (let i = 0; i < channelData.length; i += samplesPerSymbol) {
@@ -28,4 +28,5 @@ function bpsk31Decode(audioBuffer, frequency) {
     return decodedMessage; // Returning the decoded BPSK31 message
 }
 
-//well this took me forever...
+
+// creator note: this took me almost forever to write
