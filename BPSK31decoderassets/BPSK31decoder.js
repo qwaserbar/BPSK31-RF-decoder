@@ -24,29 +24,32 @@ function bpsk31Decode(audioBuffer, frequency) {
 
     // Looping through the audio samples
     for (let i = 0; i < channelData.length; i += samplesPerSymbol) {
+        // Ensuring it's reading within bounds
+        if (i + samplesPerSymbol > channelData.length) break;
+
         const sample = channelData[i];
-
-        // Determining if we are receiving a '1' or '0'
         const expectedValue = Math.sin(phase);
-        if (sample > 0) {
-            bits.push(expectedValue > 0 ? '1' : '0');
-        } else {
-            bits.push(expectedValue <= 0 ? '1' : '0');
-        }
 
-        // Increment phase for the next sample
+        // Applying a simple threshold
+        const threshold = 0; // Note: adjust if necessary
+        const detectedBit = sample > threshold ? (expectedValue > 0 ? '1' : '0') : (expectedValue <= 0 ? '1' : '0');
+        bits.push(detectedBit);
+
+        // Increment phase
         phase += phaseIncrement;
         if (phase >= 2 * Math.PI) {
             phase -= 2 * Math.PI; // Wrap phase
         }
     }
 
-    // Converting bits to characters
+    // Convert bits to characters, assuming 8 bits per character, or binary
     for (let i = 0; i < bits.length; i += 8) {
         const byteString = bits.slice(i, i + 8).join('');
-        const charCode = parseInt(byteString, 2);
-        if (charCode) {
-            decodedMessage += String.fromCharCode(charCode);
+        if (byteString.length === 8) { // Ensuring it's a full byte
+            const charCode = parseInt(byteString, 2);
+            if (charCode) {
+                decodedMessage += String.fromCharCode(charCode);
+            }
         }
     }
 
